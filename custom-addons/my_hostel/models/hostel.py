@@ -3,7 +3,7 @@ from odoo import fields, models, api
 
 class Hostel(models.Model):
     _name = 'hostel.hostel'  # iternal global unique identifier
-    _description = 'Information about hostel'  # descr. of the model.If not provided, will show warning in the log.
+    _description = 'Information about hostel'  # descr. the model, If not provided, will show warning in the log.
     _order = 'id desc, name'  # order by id in descending order
     _rec_name = 'hostel_code'  # name of the field that will be used as a display name
 
@@ -42,6 +42,8 @@ class Hostel(models.Model):
     description = fields.Html('Description', help='Enter a description for the hostel')  # store rich text in html
     hostel_rating = fields.Float('Hostel Average Rating', digits='Rating Value',
                                  help='Enter the rating of the hostel')  # store float values
+
+    category_id = fields.Many2one('hostel.category', string='Category', help='Select the category of the hostel')
 
     @api.depends('hostel_code')
     def _compute_display_name(self):

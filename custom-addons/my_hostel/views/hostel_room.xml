@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <odoo>
-    <!-- Adding custom action that opens the views for the Hostel Room -->
+    <!-- Adding custom action that opens the view for the Hostel Room -->
     <record id="action_hostel_room" model="ir.actions.act_window">
         <field name="name">Hostel Room</field>
         <field name="type">ir.actions.act_window</field>
@@ -32,6 +32,7 @@
                 <field name="hostel_id"/>
                 <field name="student_ids"/>
                 <field name="hostel_amenities_ids"/>
+                <field name="availability"/>
             </tree>
         </field>
     </record>
@@ -50,6 +51,4 @@
             </search>
         </field>
     </record>
-
-
 </odoo>

@@ -4,3 +4,4 @@ access_hostel_manager_id,access.hostel.manager,my_hostel.model_hostel_hostel,my_
 access_hostel_room_manager_id,access.hostel.manager,my_hostel.model_hostel_room,my_hostel.group_hostel_manager,1,1,1,1
 access_hostel_student_manager_id,access.hostel.manager,my_hostel.model_hostel_student,my_hostel.group_hostel_manager,1,1,1,1
 access_hostel_amenities_manager_id,access.hostel.manager,my_hostel.model_hostel_amenities,my_hostel.group_hostel_manager,1,1,1,1
+access_hostel_category_manager_id,access.hostel.manager,my_hostel.model_hostel_category,my_hostel.group_hostel_manager,1,1,1,1
