@@ -9,7 +9,7 @@
         <field name="view_mode">tree,form</field>
         <field name="help" type="html">
             <p class="oe_view_noncontent_create">
-                Click to create a new hostel category.
+                Click on New to create a hostel category.
             </p>
         </field>
     </record>

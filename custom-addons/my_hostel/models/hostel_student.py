@@ -25,6 +25,17 @@ class HostelStudent(models.Model):
     duration = fields.Integer('Duration', compute='_compute_check_duration', inverse='_inverse_duration',
                               help='Enter the duration of stay in months')
 
+    # exposing related fields stored in other models p100
+
+    # Odoo clients can only read data from the server for the fields that belong to the model they are querying.
+    # They cannot access data from related tables using dot notation as server-side code can.
+
+    # However, we can make the data from related tables available to the clients by adding it as related fields.
+    # This is what we will do to get the hostel of the room in the student model.
+
+    hostel_id = fields.Many2one('hostel.hostel', string='Hostel', related='room_id.hostel_id', store=True,
+                                help='Hostel of the room')
+
     @api.depends('admission_date', 'discharge_date')
     def _compute_check_duration(self):
         for record in self:
@@ -39,3 +50,11 @@ class HostelStudent(models.Model):
                 if duration != student.duration:
                     student.discharge_date = (student.admission_date + timedelta(days=student.duration)).strftime(
                         '%Y-%m-%d')
+
+    # Make sure that the compute method always assigns a value to the computed field. Otherwise, an error
+    # will occur. This can happen when you have conditions in your code that sometimes fail to assign a
+    # value to the computed field. This can be hard to debug.
+
+    # It is also possible to make a non-stored computed field searchable by setting the search attribute to
+    # the method name (similar to compute and inverse). Like inverse, search is also optional;
+    # if you don’t want to make the computed field searchable, you can skip it.
