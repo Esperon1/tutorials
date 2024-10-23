@@ -16,10 +16,12 @@ class Solution(http.Controller):
         domain = []
 
         if tags:
-            tag_ids = [int(tag_id) for tag_id in
-                       tags.split(',')]  # allow a string of tag ids separated by commas, to filter by multiple tags
+            # Convert the comma-separated tag IDs to a list of integers
+            tag_ids = [int(tag_id) for tag_id in tags.split(',') if tag_id.isdigit()]
             if tag_ids:
-                domain.append(('tags', 'in', tag_ids))
+                # Add a condition for each tag to the domain
+                for tag_id in tag_ids:
+                    domain.append(('tags', '=', tag_id))
 
         solutions = request.env['solution_search.solution'].search(domain)
         # get all categories
