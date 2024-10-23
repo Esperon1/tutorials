@@ -2,17 +2,34 @@
 
 <odoo>
     <!-- solution view -->
-    <record id="view_solution_solution" model="ir.ui.view">
-        <field name="name">solution.solution</field>
+    <record id="view_solution_solution_tree" model="ir.ui.view">
+        <field name="name">solution.solution.tree</field>
         <field name="model">solution_search.solution</field>
         <field name="arch" type="xml">
-            <form string="Solution">
+            <tree string="Solution List">
+                <field name="name"/>
+                <field name="description"/>
+                <field name="solution_subtitle"/>
+                <field name="video"/>
+                <field name="tags"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_solution_form">
+        <field name="name">solution.solution.form</field>
+        <field name="model">solution_search.solution</field>
+        <field name="arch" type="xml">
+            <form string="Solution Form">
                 <sheet>
                     <group>
                         <field name="name"/>
                         <field name="description"/>
+                        <field name="solution_subtitle"/>
                         <field name="video"/>
                         <field name="tags"/>
+                        <field name="active"/>
                     </group>
                 </sheet>
             </form>
@@ -24,7 +41,7 @@
         <field name="name">Solutions</field>
         <field name="res_model">solution_search.solution</field>
         <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="view_solution_solution"/>
+        <field name="view_id" ref="view_solution_solution_tree"/>
     </record>
 
     <!-- solution tag tree-->
@@ -91,5 +108,4 @@
               name="Tag Categories"
               sequence="70"
               action="action_tag_category"/>
-
 </odoo>
