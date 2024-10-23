@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <!-- solution view -->
+    <record id="view_solution_solution" model="ir.ui.view">
+        <field name="name">solution.solution</field>
+        <field name="model">solution_search.solution</field>
+        <field name="arch" type="xml">
+            <form string="Solution">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                        <field name="video"/>
+                        <field name="tags"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- action solution -->
+    <record id="action_solution_solution" model="ir.actions.act_window">
+        <field name="name">Solutions</field>
+        <field name="res_model">solution_search.solution</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_solution_solution"/>
+    </record>
+
+    <!-- solution tag tree-->
+    <record id="view_solution_tag_tree" model="ir.ui.view">
+        <field name="name">solution.tag.tree</field>
+        <field name="model">solution.tag</field>
+        <field name="arch" type="xml">
+            <tree string="Tag List">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- action solution tag -->
+    <record id="action_tags" model="ir.actions.act_window">
+        <field name="name">Solution Tags</field>
+        <field name="res_model">solution.tag</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_solution_tag_tree"/>
+    </record>
+
+
+    <!-- solution tag category tree-->
+    <record id="view_solution_tag_category_tree" model="ir.ui.view">
+        <field name="name">solution.tag.category.tree</field>
+        <field name="model">solution.tag.category</field>
+        <field name="arch" type="xml">
+            <tree string="Tag Category List">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- action tag category -->
+    <record id="action_tag_category" model="ir.actions.act_window">
+        <field name="name">Solution Tag Categories</field>
+        <field name="res_model">solution.tag.category</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_solution_tag_category_tree"/>
+    </record>
+
+
+    <!-- root -->
+    <menuitem name="Solution"
+              id="menu_solution_root"
+              sequence="200"
+              parent="website.menu_website_configuration"
+              groups="website.group_website_designer"/>
+
+    <menuitem id="menu_solution_global"
+              parent="menu_solution_root"
+              name="Solutions"
+              sequence="50"
+              action="action_solution_solution"/>
+
+    <menuitem id="menu_solution_tag_global"
+              parent="menu_solution_root"
+              name="Tags"
+              action="action_tags"
+              sequence="60"/>
+
+    <menuitem id="menu_solution_tag_category_global"
+              parent="menu_solution_root"
+              name="Tag Categories"
+              sequence="70"
+              action="action_tag_category"/>
+
+</odoo>

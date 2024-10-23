@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_solution_search,access_solution_search,model_solution_search_solution,base.group_user,1,1,1,1
+access_solution_tag,access_solution_tag,model_solution_tag,base.group_user,1,1,1,1
+access_solution_category,access_solution_category,model_solution_tag_category,base.group_user,1,1,1,1
