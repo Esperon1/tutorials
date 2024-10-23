@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <template id="solutions_view">
+            <t t-call="website.layout">
+                <div class="container">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h1>Solutions</h1>
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Subtitle</th>
+                                        <th>Video</th>
+                                        <th>Tags</th>
+                                        <th>Active</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="solutions" t-as="solution">
+                                        <td><t t-esc="solution.name"/></td>
+                                        <td><t t-esc="solution.description"/></td>
+                                        <td><t t-esc="solution.solution_subtitle"/></td>
+                                        <td><t t-esc="solution.video"/></td>
+                                        <td><t t-esc="solution.tags"/></td>
+                                        <td><t t-esc="solution.active"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

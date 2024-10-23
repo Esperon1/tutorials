@@ -8,6 +8,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/solution_views.xml',
+        'views/templates.xml'
     ],
 
     'installable': True,
