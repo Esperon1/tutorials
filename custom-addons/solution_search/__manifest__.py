@@ -1,9 +1,9 @@
 {
     'name': 'Solution Search',
     'summary': 'Solution Search',
-    'description': 'Solution ',
+    'description': 'Module to search for solutions (examples) on the website',
     'category': 'Website',
-    'version': '1.0',
+    'version': '1.1',
     'depends': ['website', 'website_blog'],
     'data': [
         'security/ir.model.access.csv',
