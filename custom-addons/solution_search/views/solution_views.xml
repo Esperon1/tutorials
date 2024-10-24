@@ -11,7 +11,7 @@
                 <field name="description"/>
                 <field name="solution_subtitle"/>
                 <field name="video"/>
-                <field name="tags" widget="many2many_tags"/>
+                <field name="tags_id" widget="many2many_tags"/>
                 <field name="active"/>
             </tree>
         </field>
@@ -26,10 +26,11 @@
                 <sheet>
                     <group>
                         <field name="name"/>
+                        <field name="image_1920"/>
                         <field name="description"/>
                         <field name="solution_subtitle"/>
                         <field name="video"/>
-                        <field name="tags" widget="many2many_tags"/>
+                        <field name="tags_id" widget="many2many_tags"/>
                         <field name="active"/>
                     </group>
                 </sheet>
@@ -52,6 +53,7 @@
         <field name="arch" type="xml">
             <tree string="Tag List">
                 <field name="name"/>
+                <field name="category_id"/>
             </tree>
         </field>
     </record>
@@ -65,6 +67,7 @@
                 <sheet>
                     <group>
                         <field name="name"/>
+                        <field name="category_id"/>
                     </group>
                 </sheet>
             </form>

@@ -10,7 +10,7 @@ class Solution(http.Controller):
     @http.route([
         '/solutions',
         '/solutions/page/<int:page>',
-        '/solutions/tag/<string:tags>',
+        '/solutions/tag/<string:tags_id>',
         '/solutions/tag/<int:tag>/page/<int:page>'], auth='public', website=True)
     def show_solutions(self, tags=False, page=1, **kw):
         domain = []
@@ -21,15 +21,18 @@ class Solution(http.Controller):
             if tag_ids:
                 # Add a condition for each tag to the domain
                 for tag_id in tag_ids:
-                    domain.append(('tags', '=', tag_id))
+                    domain.append(('tags_id', '=', tag_id))
 
         solutions = request.env['solution_search.solution'].search(domain)
-        # get all categories
-        categories = request.env['solution_search.tag.category'].search([])
+
+        # get all tags_id for all solutions
+        all_solutions = request.env['solution_search.solution'].search([])
+        tags = all_solutions.mapped('tags_id')
+        categories = tags.mapped('category_id')
 
         return request.render('solution_search.solutions_view', {
             'solutions': solutions,
             'categories': categories,
+            'tags_id': tags,
             'current_page': page,
-            'tags': tags,
         })

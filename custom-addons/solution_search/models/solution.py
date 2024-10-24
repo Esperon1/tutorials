@@ -11,6 +11,7 @@ class SolutionSearchSolution(models.Model):
         'website.multi.mixin',
         'website.cover_properties.mixin',
         'website.searchable.mixin',
+        'image.mixin'
     ]
 
     _order = 'create_date DESC'
@@ -21,7 +22,7 @@ class SolutionSearchSolution(models.Model):
     name = fields.Char(string='Solution Name', required=True, translate=True)  # Name of the solution
     description = fields.Html(string='Content', translate=html_translate, sanitize=False)  # Description of the solution
     video = fields.Char(string='Video URL')  # Video URL for the solution
-    tags = fields.Many2many('solution_search.tag', string='Tags', required=True)  # Tags for the solution
+    tags_id = fields.Many2many('solution_search.tag', string='Tags', required=True)  # Tags for the solution
 
 
 

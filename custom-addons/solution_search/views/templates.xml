@@ -3,32 +3,50 @@
     <data>
         <template id="solutions_view">
             <t t-call="website.layout">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h1>Solutions</h1>
-                            <table class="table table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Subtitle</th>
-                                        <th>Video</th>
-                                        <th>Tags</th>
-                                        <th>Active</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr t-foreach="solutions" t-as="solution">
-                                        <td><t t-esc="solution.name"/></td>
-                                        <td><t t-esc="solution.description"/></td>
-                                        <td><t t-esc="solution.solution_subtitle"/></td>
-                                        <td><t t-esc="solution.video"/></td>
-                                        <td><t t-esc="solution.tags"/></td>
-                                        <td><t t-esc="solution.active"/></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                <div class="s_solution_search">
+                    <div class="oe_structure oe_empty" id="oe_structure_solution_search"/>
+                    <div class="container">
+                        <div class="row">
+                            <!-- two column bootstrap layout with a filter on the left and a masonry on the right -->
+                            <div class="col-md-4">
+                                <t t-foreach="categories" t-as="category">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title"><t t-esc="category.name"/></h3>
+                                        </div>
+                                        <!-- display the tags_id of the category as pills -->
+                                        <div class="panel-body bg-light">
+                                            <ul class="list-unstyled p-4">
+                                                <t t-foreach="category.tag_ids" t-as="tag">
+                                                    <t t-if="tag in tags_id">
+                                                        <li t-att-data-tag="tag.id" t-att-href="'#'"
+                                                            class="tag-filter list-item"
+                                                            role="button">
+                                                            <t t-esc="tag.name"/>
+                                                        </li>
+                                                    </t>
+                                                </t>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row" id="shuffle-container">
+                                    <!-- display the solutions in a card layout, each card has a t-att-data-tag attribute representing all tags_id the solution has -->
+                                    <t t-foreach="solutions" t-as="solution">
+                                        <div class="card col-md-6 solution-item" t-att-data-tags="solution.tags_id.ids">
+                                            <div class="card-body">
+                                                <h5 class="card-title text-primary"><t t-esc="solution.name"/></h5>,
+                                                <p class="card-text"><t t-esc="solution.description"/></p>
+                                            </div>
+                                            <img t-att-src="solution.image_1920" class="card-img-bottom"
+                                                 t-att-alt="solution.name"/>
+                                        </div>
+                                    </t>
+                                    <div class="col-md-6 js-shuffle-sizer"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
