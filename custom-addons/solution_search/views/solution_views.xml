@@ -11,7 +11,7 @@
                 <field name="description"/>
                 <field name="solution_subtitle"/>
                 <field name="video"/>
-                <field name="tags_id" widget="many2many_tags"/>
+                <field name="tags" widget="many2many_tags"/>
                 <field name="active"/>
             </tree>
         </field>
@@ -28,9 +28,10 @@
                         <field name="name"/>
                         <field name="image_1920"/>
                         <field name="description"/>
+                        <field name="long_description"/>
                         <field name="solution_subtitle"/>
                         <field name="video"/>
-                        <field name="tags_id" widget="many2many_tags"/>
+                        <field name="tags" widget="many2many_tags"/>
                         <field name="active"/>
                     </group>
                 </sheet>
@@ -38,11 +39,21 @@
         </field>
     </record>
 
-    <!-- action solution -->
     <record id="action_solution_solution" model="ir.actions.act_window">
         <field name="name">Solutions</field>
         <field name="res_model">solution_search.solution</field>
         <field name="view_mode">tree,form</field>
+        <field name="domain">[('type','=','solution')]</field>
+        <field name="context">{'default_type': 'solution'}</field>
+        <field name="view_id" ref="view_solution_solution_tree"/>
+    </record>
+
+    <record id="action_solution_papers" model="ir.actions.act_window">
+        <field name="name">Papers</field>
+        <field name="res_model">solution_search.solution</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('type','=','paper')]</field>
+        <field name="context">{'default_type': 'paper'}</field>
         <field name="view_id" ref="view_solution_solution_tree"/>
     </record>
 
@@ -76,7 +87,7 @@
 
     <!-- action solution tag -->
     <record id="action_tags" model="ir.actions.act_window">
-        <field name="name">Solution Tags</field>
+        <field name="name">Tags</field>
         <field name="res_model">solution_search.tag</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="view_solution_tag_tree"/>
@@ -118,7 +129,7 @@
 
 
     <!-- root -->
-    <menuitem name="Solution"
+    <menuitem name="Entries"
               id="menu_solution_root"
               sequence="200"
               parent="website.menu_website_configuration"
@@ -129,7 +140,11 @@
               name="Solutions"
               sequence="50"
               action="action_solution_solution"/>
-
+    <menuitem id="menu_paper_global"
+              parent="menu_solution_root"
+              name="Papers"
+              sequence="50"
+              action="action_solution_papers"/>
     <menuitem id="menu_solution_tag_global"
               parent="menu_solution_root"
               name="Tags"

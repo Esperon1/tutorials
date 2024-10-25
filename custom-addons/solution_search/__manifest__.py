@@ -3,7 +3,7 @@
     'summary': 'Solution Search',
     'description': 'Module to search for solutions (examples) on the website',
     'category': 'Website',
-    'version': '1.2',
+    'version': '1.3',
     'depends': ['website', 'website_blog'],
     'data': [
         'security/ir.model.access.csv',
@@ -18,6 +18,6 @@
             'solution_search/static/src/js/solutions.js',
         ]
     },
-
-    'installable': True,
+    'application': True,
+    'installable': True
 }
