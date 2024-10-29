@@ -1,15 +1,15 @@
 /** @odoo-module **/
 
-import {_t} from "@web/core/l10n/translation";
-import {PaymentScreen} from "@point_of_sale/app/screens/payment_screen/payment_screen";
-import {patch} from "@web/core/utils/patch";
+import { _t } from "@web/core/l10n/translation";
+import { PaymentScreen } from "@point_of_sale/app/screens/payment_screen/payment_screen";
+import { patch } from "@web/core/utils/patch";
 
 patch(PaymentScreen.prototype, {
     //@Override
     setup() {
         super.setup(...arguments);
         if (this.pos.isCountryAustriaAndFiskaly()) {
-            const _super_handlePushOrderError = this._handlePushOrderError.bind(this); // bind the function to the current context
+            const _super_handlePushOrderError = this._handlePushOrderError.bind(this);
             this._handlePushOrderError = async (error) => {
                 if (error.code === "fiskaly") {
                     const message = {
@@ -44,17 +44,33 @@ patch(PaymentScreen.prototype, {
     //@override
     async _finalizeValidation() {
         if (this.pos.isCountryAustriaAndFiskaly()) {
-            try {
-                await this.currentOrder.createTransaction();
-                await super._finalizeValidation(...arguments);
-            } catch (error) {
-                if (error.status === 0) {
-                    this.pos.showFiskalyNoInternetConfirmPopup(this);
-                } else {
-                    const message = {
-                        unknown: _t("An unknown error has occurred! Please, contact Odoo."),
-                    };
-                    this.pos.fiskalyError(error, message);
+            if (this.currentOrder.isTransactionInactive()) {
+                try {
+                    await this.pos.createTransaction(this.currentOrder);
+                } catch (error) {
+                    if (error.status === 0) {
+                        this.pos.showFiskalyNoInternetConfirmPopup(this);
+                    } else {
+                        const message = {
+                            unknown: _t("An unknown error has occurred! Please, contact Odoo."),
+                        };
+                        this.pos.fiskalyError(error, message);
+                    }
+                }
+            }
+            if (this.currentOrder.isTransactionStarted()) {
+                try {
+                    await this.pos.finishShortTransaction(this.currentOrder);
+                    await super._finalizeValidation(...arguments);
+                } catch (error) {
+                    if (error.status === 0) {
+                        this.pos.showFiskalyNoInternetConfirmPopup(this);
+                    } else {
+                        const message = {
+                            unknown: _t("An unknown error has occurred! Please, contact Odoo."),
+                        };
+                        this.pos.fiskalyError(error, message);
+                    }
                 }
             }
         } else {

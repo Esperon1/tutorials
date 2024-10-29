@@ -6,5 +6,3 @@
 export function convertFromEpoch(seconds) {
     return new Date(seconds * 1000).toISOString().substring(0, 19).replace("T", " ");
 }
-
-

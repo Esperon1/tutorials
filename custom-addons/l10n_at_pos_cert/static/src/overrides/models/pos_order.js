@@ -1,17 +1,16 @@
-/** @odoo-module */
-
-// import {Order} from "@point_of_sale/app/store/models";
-import {qrCodeSrc, uuidv4} from "@point_of_sale/utils";
+import {PosOrder} from "@point_of_sale/app/models/pos_order";
 import {convertFromEpoch} from "@l10n_at_pos_cert/app/utils";
 import {patch} from "@web/core/utils/patch";
+import {roundCurrency} from "@point_of_sale/app/models/utils/currency";
 
-patch(Order.prototype, { // https://www.odoo.com/documentation/17.0/developer/reference/frontend/patching_code.html
+patch(PosOrder.prototype, {
+
+    // @Override
     setup() {
         super.setup(...arguments);
-        if (this.pos.isCountryAustriaAndFiskaly()) {
+        if (this.isCountryAustriaAndFiskaly()) {
             console.log('AT Fiscalization');
             this.transactionState = this.transactionState || 'inactive';
-            this.save_to_db();
         }
     },
     _initReceiptInformation() {
@@ -35,6 +34,7 @@ patch(Order.prototype, { // https://www.odoo.com/documentation/17.0/developer/re
             _hints: {"hints": []}
         };
     },
+
     isTransactionInactive() {
         return this.transactionState === 'inactive';
     },
@@ -49,6 +49,14 @@ patch(Order.prototype, { // https://www.odoo.com/documentation/17.0/developer/re
     },
     isTransactionFinished() {
         return this.transactionState === 'finished';
+    },
+
+    isCountryAustria() {
+        return this.config.is_company_country_austria;
+    },
+
+    isCountryAustriaAndFiskaly() {
+        return this.isCountryAustria()
     },
 
     _authenticate() {
@@ -71,72 +79,6 @@ patch(Order.prototype, { // https://www.odoo.com/documentation/17.0/developer/re
                 error.source = "authenticate";
                 return Promise.reject(error);
             });
-    },
-
-
-    /*
- *  Return an array of { 'vat_rate': ..., 'amount': ...}
- */
-    _createAmountPerVatRateArray() {
-        if (!this.pos.isCountryAustriaAndFiskaly()) {
-            return super._createAmountPerVatRateArray(...arguments);
-        }
-        const rateIds = {
-            STANDARD: [],
-            REDUCED_1: [],
-            REDUCED_2: [],
-            SPECIAL: [],
-            ZERO: []
-        };
-        this.get_tax_details().forEach((detail) => {
-            rateIds[this.pos.vatRateMapping[detail.tax.amount]].push(detail.tax.id);
-        });
-        const amountPerVatRate = {
-            STANDARD: 0,
-            REDUCED_1: 0,
-            REDUCED_2: 0,
-            SPECIAL: 0,
-            ZERO: 0,
-        };
-        for (var rate in rateIds) {
-            rateIds[rate].forEach((id) => {
-                amountPerVatRate[rate] += this.get_total_for_taxes(id);
-            });
-        }
-        console.log(rateIds);
-        console.log(amountPerVatRate);
-        return Object.keys(amountPerVatRate)
-            .filter((rate) => !!amountPerVatRate[rate])
-            .map((rate) => ({
-                vat_rate: rate,
-                amount: amountPerVatRate[rate].toFixed(2) //TODO: this.env.utils.roundCurrency(amountPerVatRate[rate]).toFixed(2),
-            }));
-    },
-    /*
-     *  Return an array of { 'payment_type': ..., 'amount': ...}
-     */
-    _createAmountPerPaymentTypeArray() {
-        if (!this.pos.isCountryAustriaAndFiskaly()) {
-            return super._createAmountPerPaymentTypeArray(...arguments);
-        }
-
-        const amountPerPaymentTypeArray = [];
-        this.get_paymentlines().forEach((line) => {
-            amountPerPaymentTypeArray.push({
-                payment_type:
-                    line.payment_method.name.toLowerCase() === "cash" ? "CASH" : "NON_CASH",
-                amount: line.amount.toFixed(2) //TODO: fix env.utils error: this.env.utils.roundCurrency(line.amount).toFixed(2),
-            });
-        });
-        let change = this.get_change();
-        if (change) {
-            change = -this.get_change()
-            amountPerPaymentTypeArray.push({
-                payment_type: "CASH",
-                amount: change.toFixed(2).toString() //TODO: this.env.utils.roundCurrency(-change).toFixed(2),
-            });
-        }
-        return amountPerPaymentTypeArray;
     },
 
     async createTransaction() {
@@ -177,13 +119,66 @@ patch(Order.prototype, { // https://www.odoo.com/documentation/17.0/developer/re
             })
             .catch(async (error) => {
                 if (error.status === 401) {
-                    // Need to update the token
                     await this._authenticate();
                     return this.createTransaction();
                 }
-                // Return a Promise with rejected value for errors that are not handled here
                 return Promise.reject(error);
             });
+    },
+
+    // @Override
+    _createAmountPerVatRateArray(order) {
+        const rateIds = {
+            STANDARD: [],
+            REDUCED_1: [],
+            REDUCED_2: [],
+            SPECIAL: [],
+            ZERO: [],
+        };
+        order.get_tax_details().forEach((detail) => {
+            rateIds[this.vatRateMapping[detail.tax_percentage]].push(detail.id);
+        });
+        const amountPerVatRate = {
+            STANDARD: 0,
+            REDUCED_1: 0,
+            REDUCED_2: 0,
+            SPECIAL: 0,
+            ZERO: 0,
+        };
+        for (let rate in rateIds) {
+            rateIds[rate].forEach((id) => {
+                amountPerVatRate[rate] += order.get_total_for_taxes(id);
+            });
+        }
+        return Object.keys(amountPerVatRate)
+            .filter((rate) => !!amountPerVatRate[rate])
+            .map((rate) => ({
+                vat_rate: rate,
+                amount: roundCurrency(amountPerVatRate[rate], this.currency).toFixed(2),
+            }));
+    },
+
+    _createAmountPerPaymentTypeArray() {
+        if (!this.isCountryAustriaAndFiskaly()) {
+            return super._createAmountPerPaymentTypeArray(...arguments);
+        }
+
+        const amountPerPaymentTypeArray = [];
+        this.payment_ids.forEach((line) => {
+            amountPerPaymentTypeArray.push({
+                payment_type:
+                    line.payment_method.name.toLowerCase() === "cash" ? "CASH" : "NON_CASH",
+                amount: roundCurrency(line.amount, this.currency).toFixed(2) //TODO: fix env.utils error: this.env.utils.roundCurrency(line.amount).toFixed(2),
+            });
+        });
+        const change = this.get_change();
+        if (change) {
+            amountPerPaymentTypeArray.push({
+                payment_type: "CASH",
+                amount: roundCurrency(-change, this.currency).toFixed(2),
+            });
+        }
+        return amountPerPaymentTypeArray;
     },
     _createLineItemsArray() {
         const lines = [];
@@ -196,36 +191,24 @@ patch(Order.prototype, { // https://www.odoo.com/documentation/17.0/developer/re
         });
         return lines;
     },
-    //@Override
-    export_as_JSON() {
-        const json = super.export_as_JSON(...arguments);
-        if (this.pos.isCountryAustriaAndFiskaly()) {
-            if (this.isTransactionFinished()) {
-                json['l10n_at_fiskaly_transaction_uuid'] = this.fiskalyUuid;
-                json['l10n_at_receipt_type'] = this.l10n_at_data['receipt_type'];
-                json['l10n_at_receipt_number'] = this.l10n_at_data['receipt_number'];
-                json['l10n_at_qr_code_data'] = this.l10n_at_data['qr_code_data'];
-                json['l10n_at_time_signature'] = this.l10n_at_data['time_signature'];
-                json['l10n_at_cash_register_id'] = this.l10n_at_data['cash_register_id'];
-                json['l10n_at_cash_register_serial_number'] = this.l10n_at_data['cash_register_serial_number'];
-                json['l10n_at_signature_creation_unit_id'] = this.l10n_at_data['signature_creation_unit_id'];
-            }
-        }
-        return json;
-    },
 
-    // @Override
     export_for_printing() {
         const receipt = super.export_for_printing(...arguments);
-        if (this.pos.isCountryAustriaAndFiskaly()) {
+        if (this.isCountryAustriaAndFiskaly()) {
             if (this.isTransactionFinished()) {
                 receipt["l10n_at_receipt_number"] = this.l10n_at_data["receipt_number"];
                 receipt["l10n_at_time_signature"] = convertFromEpoch(this.l10n_at_data["time_signature"]);
                 receipt["l10n_at_cash_register_serial_number"] = this.l10n_at_data["cash_register_serial_number"];
                 receipt["l10n_at_qr_code"] = qrCodeSrc(this.l10n_at_data["qr_code_data"]);
+            } else {
+                console.error("Transaction not finished"); // Continue from here
             }
         }
         return receipt;
     },
+
 });
 
+export function qrCodeSrc(url, {size = 200} = {}) {
+    return `/report/barcode/QR/${encodeURIComponent(url)}?width=${size}&height=${size}`;
+}

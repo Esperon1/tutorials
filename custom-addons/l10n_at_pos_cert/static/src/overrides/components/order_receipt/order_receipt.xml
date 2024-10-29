@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
-    <t t-name="l10n_at_pos_cert.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+    <t t-name="l10n_de_pos_cert.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
         <xpath expr="//div[hasclass('before-footer')]" position="inside">
-            <div t-if="props.data.l10n_at_qr_code">
-                <br /><br />
-                <div class="pos-receipt-order-data mb-2">
-                    RKSV-Belegnummer: <t t-esc="props.data.l10n_at_receipt_number"/><br/>
-                    Signierdatum: <t t-esc="props.data.l10n_at_time_signature"/><br/>
-                    RKSV-Kassen-Seriennummer: <t t-esc="props.data.l10n_at_cash_register_serial_number"/>
-                </div>
-                <img id="posqrcode" t-att-src="props.data.l10n_at_qr_code" class="pos-receipt-qrcode" style="width: 25%;"/><br/>
-                <div class="pos-receipt-order-data mb-2">
-                    Powered by <a href="https://www.multioss.com" target="_blank">multioss.com</a>
-                </div>
-            </div>
-        </xpath>
-        <xpath expr="//div[hasclass('pos-receipt-order-data')]/p" position="replace">
+            <t t-if="'tss' in props.data">
+                <t t-foreach="props.data.tss" t-as="info" t-key="info">
+                    <div class="tss-info">
+                        <span t-esc="info"/>
+                        <span t-esc='info_value' t-attf-class="{{ (info == 'TSE-Seriennummer' or info == 'TSE-Signatur' or info == 'TSE-PublicKey') ? 'tss-info-long-value' : 'pos-receipt-right-align' }}"/>
+                    </div>
+                </t>
+            </t>
+            <t t-elif="props.data['test_environment']">
+                This is a TEST receipt. Go to your company settings to be in a production environment.
+            </t>
+            <t t-elif="props.data['tss_issue']">
+                This receipt is invalid because of TSS issue.
+            </t>
         </xpath>
     </t>
 </templates>
