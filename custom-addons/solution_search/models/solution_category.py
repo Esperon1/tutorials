@@ -3,7 +3,7 @@ from odoo import models, fields, api
 
 class SolutionTagCategory(models.Model):
     _name = 'solution_search.tag.category'
-    _description = 'Solution Tag Category'
+    _description = 'Tag Category'
     _inherit = ['website.seo.metadata']
 
     name = fields.Char(string='Name', required=True, translate=True)
