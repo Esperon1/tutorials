@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_form_inherit_pos_order">
+            <field name="name">pos.order.form.inherit</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+            <field name="arch" type="xml">
+                <page name="extra" position="inside">
+                    <group string="Fiskaly AT information" invisible="not l10n_at_fiskaly_transaction_uuid">
+                        <field name="l10n_at_fiskaly_transaction_uuid"/>
+                        <field name="l10n_at_receipt_type"/>
+                        <field name="l10n_at_receipt_number"/>
+                        <field name="l10n_at_qr_code_data" style="word-break: break-all"/>
+                        <field name="l10n_at_time_signature"/>
+                        <field name="l10n_at_cash_register_id"/>
+                        <field name="l10n_at_cash_register_serial_number"/>
+                        <field name="l10n_at_signature_creation_unit_id"/>
+                    </group>
+                </page>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="l10n_at_pos_cert.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('before-footer')]" position="inside">
+            <div t-if="props.data.l10n_at_qr_code">
+                <br /><br />
+                <div class="pos-receipt-order-data mb-2">
+                    RKSV-Belegnummer: <t t-esc="props.data.l10n_at_receipt_number"/><br/>
+                    Signierdatum: <t t-esc="props.data.l10n_at_time_signature"/><br/>
+                    RKSV-Kassen-Seriennummer: <t t-esc="props.data.l10n_at_cash_register_serial_number"/>
+                </div>
+                <img id="posqrcode" t-att-src="props.data.l10n_at_qr_code" class="pos-receipt-qrcode" style="width: 25%;"/><br/>
+                <div class="pos-receipt-order-data mb-2">
+                    Powered by <a href="https://www.multioss.com" target="_blank">multioss.com</a>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//div[hasclass('pos-receipt-order-data')]/p" position="replace">
+        </xpath>
+    </t>
+</templates>

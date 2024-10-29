@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.l10n_at_pos_cert</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="point_of_sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='pos_interface_section']" position="before">
+                <field name="l10_at_is_country_austria" invisible="1"/>
+                <div invisible="not l10_at_is_country_austria">
+                    <block title="Fiskaly API" invisible="pos_l10n_at_cash_register_id">
+                        <setting string="Create Cash Register" help="Create Cash Register in order to sign a receipt.">
+                            <field name="pos_l10n_at_create_cash_register"/>
+                        </setting>
+                    </block>
+                    <block title="Fiskaly API" invisible="not pos_l10n_at_cash_register_id">
+                        <setting>
+                            <field name="pos_l10n_at_cash_register_id"/>
+                        </setting>
+                    </block>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -14,8 +14,8 @@ services:
     volumes:
       - web-data:/var/lib/odoo
       - ./custom-addons:/mnt/custom-addons
-      - ./../odoo-enterprise-17:/mnt/odoo-enterprise
-      - ./../odoo-17:/mnt/odoo
+      - ./../odoo-enterprise-18:/mnt/odoo-enterprise
+      - ./../odoo-18:/mnt/odoo
     environment:
       - HOST=db
       - USER=odoo
