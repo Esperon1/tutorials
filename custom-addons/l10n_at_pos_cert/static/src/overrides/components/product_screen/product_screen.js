@@ -10,7 +10,7 @@ patch(ProductScreen.prototype, {
         try {
             await super._barcodeProductAction(...arguments);
         } catch (error) {
-            if (this.pos.isCountryGermanyAndFiskaly() && error instanceof TaxError) {
+            if (this.pos.isCountryAustriaAndFiskaly() && error instanceof TaxError) {
                 await this.pos._showTaxError();
             } else {
                 throw error;

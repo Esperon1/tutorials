@@ -65,7 +65,7 @@ class PosConfig(models.Model):
 
     @api.model
     def l10n_at_get_fiskaly_urls_and_key_secret(self, config_id):  # used in pos_store.js
-        self.check_access_rights('read')
+        self.browse().check_access('read')
         company = self.browse(config_id).company_id.sudo()
         IrParamSudo = self.env['ir.config_parameter'].sudo()
         api_key = IrParamSudo.get_param('l10n_at.fiskaly_api_key')

@@ -46,10 +46,10 @@ patch(PaymentScreen.prototype, {
         if (this.pos.isCountryAustriaAndFiskaly()) {
             if (this.currentOrder.isTransactionInactive()) {
                 try {
-                    await this.pos.createTransaction(this.currentOrder);
+                    this.pos.createTransaction(this.currentOrder);
                 } catch (error) {
                     if (error.status === 0) {
-                        this.pos.showFiskalyNoInternetConfirmPopup(this);
+                        await this.pos.showFiskalyNoInternetConfirmPopup(this);
                     } else {
                         const message = {
                             unknown: _t("An unknown error has occurred! Please, contact Odoo."),
@@ -64,7 +64,7 @@ patch(PaymentScreen.prototype, {
                     await super._finalizeValidation(...arguments);
                 } catch (error) {
                     if (error.status === 0) {
-                        this.pos.showFiskalyNoInternetConfirmPopup(this);
+                        await this.pos.showFiskalyNoInternetConfirmPopup(this);
                     } else {
                         const message = {
                             unknown: _t("An unknown error has occurred! Please, contact Odoo."),
