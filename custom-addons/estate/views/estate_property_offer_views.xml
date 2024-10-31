@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+
+    <!-- Estate Property Offer List View -->
+    <record id="estate_property_offer_list_view" model="ir.ui.view">
+        <field name="name">estate.property.offer.list</field>
+        <field name="model">estate.property.offer</field>
+        <field name="arch" type="xml">
+            <list string="Property Offers">
+                <field name="price" string="Price" width="50"/>
+                <field name="partner_id" string="Partner" width="50"/>
+                <field name="status" string="Status" width="50"/>
+                <field name="validity" string="Validity" width="50"/>
+                <field name="date_deadline" string="Deadline" width="50"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Estate Property Offer Form View -->
+    <record id="estate_property_offer_form_view" model="ir.ui.view">
+        <field name="name">estate.property.offer.form</field>
+        <field name="model">estate.property.offer</field>
+        <field name="arch" type="xml">
+            <form string="Property Offer">
+                <sheet>
+                    <group>
+                        <field name="price"/>
+                        <field name="partner_id" style="color: darkcyan"/>
+                        <field name="validity" string="Validity (days)"/>
+                        <field name="date_deadline"/>
+                        <field name="status"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Estate Property Type search view -->
+    <record id="estate_property_offer_search_view" model="ir.ui.view">
+        <field name="name">estate.property.type.search</field>
+        <field name="model">estate.property.offer</field>
+        <field name="arch" type="xml">
+            <search string="Search Property Types">
+                <field name="name"/>
+            </search>
+        </field>
+    </record>
+</odoo>
