@@ -5,7 +5,7 @@
     'author': "Yura Pylypchuk",
     'website': "https://www.yourwebsite.com",
     'category': 'Uncategorized',
-    'version': '17.0.1.0.0',  # if the version doesn't match the module version, odoo will update the module.
+    'version': '18.0.1.0.0',  # if the version doesn't match the module version, odoo will update the module.
     'depends': ['base'],
     'data': [
         # files that contains security groups must be loaded before the file with access rights.
