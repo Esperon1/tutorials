@@ -111,19 +111,24 @@ patch(PosStore.prototype, {
             await this._authenticate(); // If there's an error, a promise is created with a rejected value
         }
 
+
+        const amountPerVatRateArray = this._createAmountPerVatRateArray(order);
+        const amountPerPaymentTypeArray = order._createAmountPerPaymentTypeArray();
+        const lineItems = this._createLineItemsArray(order)
         const transactionUuid = uuidv4();
+
         const data = {
             // Austria-specific data for the transaction
             cash_register_id: this.getCashRegisterId(),
             receipt_id: transactionUuid,
             receipt_type: "NORMAL",
-            // schema: {
-            //     standard_v1: {
-            //         amounts_per_vat_rate: this._createAmountPerVatRateArray(order),
-            //         amounts_per_payment_type: this._createAmountPerPaymentTypeArray(order),
-            //         line_items: this._createLineItemsArray(order),
-            //     },
-            // },
+            schema: {
+                standard_v1: {
+                    amounts_per_vat_rate: amountPerVatRateArray,
+                    amounts_per_payment_type: amountPerPaymentTypeArray,
+                    line_items: lineItems,
+                },
+            },
         };
 
         return fetch(
@@ -210,7 +215,7 @@ patch(PosStore.prototype, {
                 standard_v1: {
                     amounts_per_vat_rate: amountPerVatRateArray,
                     amounts_per_payment_type: amountPerPaymentTypeArray,
-                    line_items: this._createLineItemsArray(order),
+                    line_items: this._createLineItemsArray(),
                 },
             },
         };
@@ -232,6 +237,7 @@ patch(PosStore.prototype, {
                 order.l10n_at_fiskaly_time_signature = data.time_signature;
                 order.l10n_at_fiskaly_cash_register_id = data.cash_register_id;
                 order.l10n_at_fiskaly_qr_code_data = data.qr_code_data;
+                // here should be l10n_at_cash_register_serial_number
                 order.transactionFinished();
             })
             .catch(async (error) => {
@@ -317,7 +323,7 @@ patch(PosStore.prototype, {
             title: _t("Problem with internet"),
             body: _t(
                 "You can either wait for the connection issue to be resolved or continue with a non-compliant receipt (the order will still be sent to Fiskaly once the connection issue is resolved).\n" +
-                    "Do you want to continue with a non-compliant receipt?"
+                "Do you want to continue with a non-compliant receipt?"
             ),
         });
         if (confirmed) {

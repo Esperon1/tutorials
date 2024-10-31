@@ -36,19 +36,19 @@ patch(PosOrder.prototype, {
     },
 
     isTransactionInactive() {
-        return this.transactionState === 'inactive';
+        return this.transactionState === "inactive";
     },
     transactionStarted() {
-        this.transactionState = 'started';
+        this.transactionState = "started";
     },
     isTransactionStarted() {
-        return this.transactionState === 'started';
+        return this.transactionState === "started";
     },
     transactionFinished() {
-        this.transactionState = 'finished';
+        this.transactionState = "finished";
     },
     isTransactionFinished() {
-        return this.transactionState === 'finished';
+        return this.transactionState === "finished";
     },
 
     isCountryAustria() {
@@ -81,93 +81,13 @@ patch(PosOrder.prototype, {
             });
     },
 
-    async createTransaction() {
-        if (!this.pos.getApiToken()) {
-            await this._authenticate(); //  If there's an error, a promise is created with a rejected value
-        }
-
-        const at_transactionUuid = uuidv4();
-        const amountPerVatRateArray = this._createAmountPerVatRateArray();
-        const amountPerPaymentTypeArray = this._createAmountPerPaymentTypeArray();
-        const lineItemsArray = this._createLineItemsArray();
-
-        const payload = {
-            'cash_register_id': this.pos.cash_register_id,
-            'receipt_id': at_transactionUuid,
-            "receipt_type": "NORMAL",
-            "schema": {
-                "standard_v1": {
-                    "amounts_per_vat_rate": amountPerVatRateArray,
-                    "amounts_per_payment_type": amountPerPaymentTypeArray,
-                    "line_items": lineItemsArray
-                }
-            }
-        }
-        const data = {}
-        return $.ajax({
-            url: `${this.pos.getApiUrl()}/cash-register/${this.pos.get_at_CashRegisterId()}/receipt/${at_transactionUuid}`,
-            method: "PUT",
-            data: JSON.stringify(payload),
-            contentType: "application/json",
-            headers: {Authorization: `Bearer ${this.pos.getApiToken()}`},
-            timeout: 5000,
-        })
-            .then((data) => {
-                this.fiskalyUuid = at_transactionUuid; // Not sure if this is needed
-                this.l10n_at_data = data; // store all the data for the receipt.
-                this.transactionFinished();
-            })
-            .catch(async (error) => {
-                if (error.status === 401) {
-                    await this._authenticate();
-                    return this.createTransaction();
-                }
-                return Promise.reject(error);
-            });
-    },
-
     // @Override
-    _createAmountPerVatRateArray(order) {
-        const rateIds = {
-            STANDARD: [],
-            REDUCED_1: [],
-            REDUCED_2: [],
-            SPECIAL: [],
-            ZERO: [],
-        };
-        order.get_tax_details().forEach((detail) => {
-            rateIds[this.vatRateMapping[detail.tax_percentage]].push(detail.id);
-        });
-        const amountPerVatRate = {
-            STANDARD: 0,
-            REDUCED_1: 0,
-            REDUCED_2: 0,
-            SPECIAL: 0,
-            ZERO: 0,
-        };
-        for (let rate in rateIds) {
-            rateIds[rate].forEach((id) => {
-                amountPerVatRate[rate] += order.get_total_for_taxes(id);
-            });
-        }
-        return Object.keys(amountPerVatRate)
-            .filter((rate) => !!amountPerVatRate[rate])
-            .map((rate) => ({
-                vat_rate: rate,
-                amount: roundCurrency(amountPerVatRate[rate], this.currency).toFixed(2),
-            }));
-    },
-
     _createAmountPerPaymentTypeArray() {
-        if (!this.isCountryAustriaAndFiskaly()) {
-            return super._createAmountPerPaymentTypeArray(...arguments);
-        }
-
         const amountPerPaymentTypeArray = [];
         this.payment_ids.forEach((line) => {
             amountPerPaymentTypeArray.push({
                 payment_type:
-                    line.payment_method.name.toLowerCase() === "cash" ? "CASH" : "NON_CASH",
+                    line.payment_method_id.name.toLowerCase() === "cash" ? "CASH" : "NON_CASH",
                 amount: roundCurrency(line.amount, this.currency).toFixed(2) //TODO: fix env.utils error: this.env.utils.roundCurrency(line.amount).toFixed(2),
             });
         });
@@ -179,17 +99,6 @@ patch(PosOrder.prototype, {
             });
         }
         return amountPerPaymentTypeArray;
-    },
-    _createLineItemsArray() {
-        const lines = [];
-        this.get_orderlines().forEach((line) => {
-            lines.push({
-                price_per_unit: line.price.toFixed(2),
-                quantity: line.quantity,
-                text: line.product.display_name
-            });
-        });
-        return lines;
     },
 
     export_for_printing() {
