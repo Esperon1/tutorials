@@ -1,13 +1,14 @@
 from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
 
-from odoo.api import readonly
 from odoo.exceptions import ValidationError, UserError
+from odoo.tools.float_utils import float_compare, float_is_zero, float_round
 
 
 class EstateProperty(models.Model):
     _name = 'estate.property'
     _description = 'Estate Property'
+    _order = 'id DESC'
 
     name = fields.Char(required=True, help="Enter the name of the property", string="Title", default="New")
     description = fields.Text(compute="", help="Enter a description for the property")
@@ -94,3 +95,29 @@ class EstateProperty(models.Model):
         self.state = 'canceled'
 
         return True
+
+    @api.constrains('expected_price')
+    def _validate_expected_price(self):
+        for record in self:
+            if record.expected_price < 0:
+                raise ValidationError("The expected price must be non-negative")
+
+    @api.constrains('selling_price')
+    def _validate_selling_price(self):
+        for record in self:
+            if record.selling_price < 0:
+                raise ValidationError("The selling price must be non-negative")
+
+    @api.constrains('selling_price', 'expected_price')
+    # Check if the selling price is at least 90% of the expected price
+    def _check_selling_price(self):
+        for record in self:
+            if not float_is_zero(record.selling_price, precision_digits=2):
+                expected_price_90 = 0.9 * record.expected_price
+                if float_compare(record.selling_price, expected_price_90, precision_digits=2) < 0:
+                    raise ValidationError("The selling price must be at least 90% of the expected price.")
+
+    def write(self, vals):
+        if 'state' in vals and vals['state'] == 'canceled':
+            vals['expected_price'] = 0
+        return super(EstateProperty, self).write(vals)

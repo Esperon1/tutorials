@@ -6,6 +6,7 @@ from odoo.exceptions import UserError, ValidationError
 class EstatePropertyOffer(models.Model):
     _name = 'estate.property.offer'
     _description = 'Estate Property Offer'
+    _order = 'price DESC'
 
     name = fields.Char(required=True, help="Enter the name of the offer", string="Title", default="New")
     create_date = fields.Datetime(default=fields.Datetime.now, help="Enter the creation date of the offer")
@@ -13,7 +14,6 @@ class EstatePropertyOffer(models.Model):
     status = fields.Selection([
         ('accepted', 'Accepted'),
         ('refused', 'Refused'),
-        ('pending', 'Pending'),
     ], copy=False)
     partner_id = fields.Many2one('res.partner', string="Partner", required=True)
     property_id = fields.Many2one('estate.property', string="Property", required=True)
@@ -47,12 +47,14 @@ class EstatePropertyOffer(models.Model):
                 record.property_id.selling_price = record.price
                 record.property_id.buyer_id = record.partner_id.id
                 estate_property.state = 'offer_accepted'
+                estate_property.partner_id = record.partner_id.id
             else:
                 raise UserError(f'You cannot sell a {estate_property.state} property.')
 
     def action_refuse(self):
         for record in self:
             record.status = 'refused'
+            record.property_id.selling_price = 0
 
         return True
 
@@ -63,3 +65,9 @@ class EstatePropertyOffer(models.Model):
             if record.status == 'accepted' and record.property_id.offer_ids.filtered(
                     lambda r: r.status == 'accepted' and r.id != record.id):
                 raise ValidationError("You cannot accept multiple offers for the same property")
+
+    @api.constrains('price')
+    def _check_price(self):
+        for record in self:
+            if record.price < 0:
+                raise ValidationError("The price of the offer must be greater than 0")
