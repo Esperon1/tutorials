@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
+from odoo.exceptions import UserError, ValidationError
 
 
 class EstatePropertyOffer(models.Model):
@@ -7,7 +8,7 @@ class EstatePropertyOffer(models.Model):
     _description = 'Estate Property Offer'
 
     name = fields.Char(required=True, help="Enter the name of the offer", string="Title", default="New")
-
+    create_date = fields.Datetime(default=fields.Datetime.now, help="Enter the creation date of the offer")
     price = fields.Float(required=True, help="Enter the price of the offer", string="Price")
     status = fields.Selection([
         ('accepted', 'Accepted'),
@@ -37,3 +38,28 @@ class EstatePropertyOffer(models.Model):
                 record.validity = delta.days
             else:
                 record.validity = 0
+
+    def action_accept(self):
+        estate_property = self.env['estate.property'].browse(self.property_id.id)
+        for record in self:
+            if estate_property.state not in ['canceled', 'sold']:
+                record.status = 'accepted'
+                record.property_id.selling_price = record.price
+                record.property_id.buyer_id = record.partner_id.id
+                estate_property.state = 'offer_accepted'
+            else:
+                raise UserError(f'You cannot sell a {estate_property.state} property.')
+
+    def action_refuse(self):
+        for record in self:
+            record.status = 'refused'
+
+        return True
+
+    #  in real life, only one offer can be accepted for a given property.
+    @api.constrains('status')
+    def _check_accepted_offer(self):
+        for record in self:
+            if record.status == 'accepted' and record.property_id.offer_ids.filtered(
+                    lambda r: r.status == 'accepted' and r.id != record.id):
+                raise ValidationError("You cannot accept multiple offers for the same property")

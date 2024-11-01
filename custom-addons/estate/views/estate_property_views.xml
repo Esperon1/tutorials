@@ -29,6 +29,10 @@
         <field name="model">estate.property</field>
         <field name="arch" type="xml">
             <form string="Property">
+                <header>
+                    <button name="action_sold" type="object" string="Sold"/>
+                    <button name="action_cancel" type="object" string="Cancel"/>
+                </header>
                 <sheet>
                     <group>
                         <div class="o_form_field o_form_header_name">
@@ -40,10 +44,10 @@
                     </group>
                     <group>
                         <group>
+                            <field name="state" style="color: darkcyan;"/>
                             <field name="property_type_id" style="color: darkcyan;"/>
                             <field name="postcode"/>
                             <field name="availability_date"/>
-                            <field name="partner_id" string="Owner" style="color: darkcyan;"/>
                         </group>
                         <group>
                             <field name="expected_price"/>

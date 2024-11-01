@@ -1,12 +1,14 @@
 from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
 
+from odoo.api import readonly
+from odoo.exceptions import ValidationError, UserError
+
 
 class EstateProperty(models.Model):
     _name = 'estate.property'
     _description = 'Estate Property'
 
-    partner_id = fields.Many2one('res.partner', string="Owner", required=True)
     name = fields.Char(required=True, help="Enter the name of the property", string="Title", default="New")
     description = fields.Text(compute="", help="Enter a description for the property")
     postcode = fields.Char(help="Enter the postcode for the property", string="Postcode")
@@ -43,7 +45,7 @@ class EstateProperty(models.Model):
 
     property_type_id = fields.Many2one('estate.property.type', string="Property Type")
     salesperson_id = fields.Many2one('res.users', string="Salesman", default=lambda self: self.env.user.id)
-    buyer_id = fields.Many2one('res.partner', string="Buyer", copy=False)
+    buyer_id = fields.Many2one('res.partner', string="Buyer", copy=False, readonly=True)
     tags_ids = fields.Many2many('estate.property.tag', string="Tags")
 
     offer_ids = fields.One2many('estate.property.offer', 'property_id', string="Offers")
@@ -53,6 +55,7 @@ class EstateProperty(models.Model):
 
     best_offer = fields.Float(compute='_compute_best_offer', store=True, string="Best Offer",
                               help="Best offer received")
+    partner_id = fields.Many2one('res.partner', string="Owner", help="Enter the owner of the property")
 
     # compute total area
     @api.depends('living_area', 'garden_area')
@@ -68,10 +71,26 @@ class EstateProperty(models.Model):
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
-        self.description = "Property of " + self.partner_id.name
+        self.description = "Property of " + self.partner_id.name if self.partner_id else ""
 
     @api.onchange('garden')
     def _onchange_garden(self):
         if not self.garden:
             self.garden_area = 0
             self.garden_orientation = False
+
+    def action_sold(self):
+        if self.state == 'canceled':
+            raise UserError("You cannot sell a canceled property")
+
+        self.state = 'sold'
+
+        return True
+
+    def action_cancel(self):
+        if self.state == 'sold':
+            raise UserError("You cannot cancel a sold property")
+
+        self.state = 'canceled'
+
+        return True
