@@ -21,6 +21,9 @@ class EstatePropertyOffer(models.Model):
     date_deadline = fields.Date(help="Enter the deadline of the offer", string="Deadline", required=True,
                                 inverse='_inverse_date_deadline', compute='_compute_date_deadline')
 
+    # Thanks to this field, an offer will be linked to a property type when it’s created
+    property_type_id = fields.Many2one(related='property_id.property_type_id', string="Property Type", store=True)
+
     @api.depends('validity', 'create_date')
     def _compute_date_deadline(self):
         for record in self:
