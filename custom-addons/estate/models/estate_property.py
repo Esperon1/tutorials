@@ -121,3 +121,11 @@ class EstateProperty(models.Model):
         if 'state' in vals and vals['state'] == 'canceled':
             vals['expected_price'] = 0
         return super(EstateProperty, self).write(vals)
+
+    @api.ondelete(at_uninstall=False)  # marks this method to be executed when the record is being deleted.
+    def _check_delete_conditions(self):
+        for record in self:
+            if record.state not in ['new', 'canceled']:
+                raise UserError("You cannot delete a property with offers")
+
+

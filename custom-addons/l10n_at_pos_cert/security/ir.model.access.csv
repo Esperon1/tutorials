@@ -1,2 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_dep7_data_export_audit_wizard,access_dep7_data_export_audit_wizard,model_dep7_data_export_audit_wizard,base.group_system,1,1,1,1

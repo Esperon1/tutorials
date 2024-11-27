@@ -74,3 +74,26 @@ class EstatePropertyOffer(models.Model):
         for record in self:
             if record.price < 0:
                 raise ValidationError("The price of the offer must be greater than 0")
+
+    @api.model
+    def create(self, vals):
+        property_id = vals.get('property_id')
+        if not property_id:
+            raise UserError("Property must be specified for the offer.")
+
+        property = self.env['estate.property'].browse(property_id)
+        if not property.exists():
+            raise UserError("The specified property does not exist.")
+
+        existing_offers = self.search([
+            ('property_id', '=', property_id),
+            ('price', '>=', vals.get('price', 0))
+        ])
+        if existing_offers:
+            raise UserError("An existing offer has an equal or higher amount.")
+
+        new_offer = super(EstatePropertyOffer, self).create(vals)
+
+        property.state = 'offer_received'
+
+        return new_offer
